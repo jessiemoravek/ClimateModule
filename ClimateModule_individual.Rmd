@@ -57,4 +57,53 @@ Which months are the CO2 values at the maximum? Minimum? Why?
 
 What rolling average is used in computing the "trend" line?  How does the trend depend on the rolling average?
 
-#The rolling average is the average of "n" values in the chart centered on the value in question. In this case the trend line is determined as a moving average of seven of the same months from different years, with the year in question in the middle. So the rolling average (i.e. point on the trend line) for January 1964 is the average of CO2 in January in 61, 62, 63, 64, 65, 66, and 67. This rolling average technique means the trend is driven by jumps in the data which are easily visualized when presented this way. 
+#The rolling average is the average of "n" values in the chart centered on the value in question. In this case the trend line is determined as a moving average of seven of the same months from different years, with the year in question in the middle. So the rolling average (i.e. point on the trend line) for January 1964 is the average of CO2 in January in 61, 62, 63, 64, 65, 66, and 67. This rolling average technique means the trend is driven by jumps in the data which are easily visualized and can change over time. 
+
+
+
+# Exercise I: Temperature Data
+
+Each of the last years has consecutively set new records on global climate.  In this section we will analyze global mean temperature data.
+
+Data from: <http://climate.nasa.gov/vital-signs/global-temperature>
+
+
+## Question 1:
+
+Describe the data set to the best of your ability given the documentation provided.  Describe what kind of column each data contains and what units it is measured in.  Then address our three key questions in understanding this data:
+#The dataset consists of seven columns: year, month, decimal date, average, interpolated, trend, and days. Year and month contain the year and number of the month, respectively. The decimal_date represents the year, plus months and days, in decimal format (this makes it easy to determine length between dates, among other advantages). The average is the average CO2 concentration (mole fraction, or number of molecules of CO2 in every million molecules of air for that month from daily averages (units = ppm). Interpolated is the interpolation of the average if there are missing datapoints within certain months from the "average" column (units = ppm). The trend column is calculated in 2 steps. First interpolated values are determined by the 7 year rolling average centered on that month of that year (units = ppm). The trend values are then calculated by removing the seasonal cycle. (interpolated values are the linearlly interpolated trend value for the missing month + average seasonal cycle). Day indicates how many days of the month CO2 readings were taken, only available for 1974 and later (units = number of days).
+
+
+- How are the measurements made? What is the associated measurement uncertainty?
+#The measurements are made by measuring the mole fraction of CO2 in dry air in micromol/mol, or ppm. I am not sure what the associated uncertainty is, since it's not mentioned in the dataset (no standard error or anything.). But there is a disclaimer saying they sometimes recalibrate reference gasses, so that must introduce some uncertainty. 
+- What is the resolution of the data?
+#The resolution of this dataset is ppm/month. We do not have daily values available. 
+- Are their missing values? How should they be handled?
+#There are missing values for a couple of months. These values are interpolated as explained in the metadata for this dataset. If there are several days of data missing at the end or beginning of a month, then the monthly average is corrected to the middle of the month using the average seasonal cycle. If entire months are missing, interpolation of monthly measurements happens in two steps: 1) 7 year rolling average centered around that month. 2) remove seasonal cycle to get a trend. 3) lineraly interpolate the missing month. 4) interpolated value is sum of average seasonal cycle value + trend value for the missing month.
+
+#Note I got all of this from the metadata for this dataset in the .txt file from the website.
+
+
+## Question 2:
+
+Construct the necessary R code to import and prepare for manipulation the following data set: <http://climate.nasa.gov/system/internal_resources/details/original/647_Global_Temperature_Data_File.txt>
+
+```{r message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+if(!file.exists("647_Global_Temperature_Data_File.txt"))
+  download.file("http://climate.nasa.gov/system/internal_resources/details/original/647_Global_Temperature_Data_File.txt", "647_Global_Temperature_Data_File.txt")
+```
+   
+```{r message=FALSE}
+temp <- 
+readr::read_table("647_Global_Temperature_Data_File.txt")
+dim(temp)
+  
+```
+```{r}
+ggplot(temp, aes(x=year, y = no_smoothing))
+```
+
