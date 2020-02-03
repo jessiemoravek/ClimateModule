@@ -1,0 +1,60 @@
+---
+title: "ClimateModule_Individual"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r message=FALSE}
+library(tidyverse)
+```
+
+```{r}
+if(!file.exists("co2_mm_mlo.txt"))
+  download.file("ftp://aftp.cmdl.noaa.gov/products/trends/co2/co2_mm_mlo.txt",
+                "co2_mm_mlo.txt")
+```
+
+```{r message=FALSE}
+co2 <- 
+readr::read_table("co2_mm_mlo.txt", 
+                  comment="#",
+                  col_names = c("year", "month", "decimal_date", "average",
+                                "interpolated", "trend", "days"),
+                  na = c("-1", "-99.99"))
+co2
+
+```
+
+```{r}
+ggplot(co2, aes(x=decimal_date, y = average))+geom_line()
+```
+
+Which months are the CO2 values at the maximum? Minimum? Why? 
+#The CO2 values are at a maximum in March, April, and May. They are at a minimum in August, September, and October. This occurs because there is more land mass in the Northern Hemisphere, and therefore more plants. Additionally, cellular respiration and decomposition (both producing CO2) happens all year, while photosynthesis only happens during the growing season. Thus, in late winter, CO2 levels are highest because many northern hemisphere plants have been respirating without photosynthesizing all winter, and also all the dead leaf matter has been decomposing for several months, releasing CO2. In late summer/early fall, CO2 levels are lower because photosynthesis has been happening all throughout the growing season and this drives down CO2 levels.   
+
+What rolling average is used in computing the "trend" line?  How does the trend depend on the rolling average?
+
+#The rolling average is the average of "n" values in the chart centered on the value in question. In this case the trend line is determined as a moving average of seven of the same months from different years, with the year in question in the middle. So the rolling average (i.e. point on the trend line) for January 1964 is the average of CO2 in January in 61, 62, 63, 64, 65, 66, and 67. This rolling average technique means the trend is driven by jumps in the data which are easily visualized when presented this way. 
