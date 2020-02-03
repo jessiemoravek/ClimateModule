@@ -97,13 +97,38 @@ if(!file.exists("647_Global_Temperature_Data_File.txt"))
   download.file("http://climate.nasa.gov/system/internal_resources/details/original/647_Global_Temperature_Data_File.txt", "647_Global_Temperature_Data_File.txt")
 ```
    
+   data <- read.table(file, sep = "" , header = F , nrows = 100,
+                     na.strings ="", stringsAsFactors= F)
+   
 ```{r message=FALSE}
 temp <- 
-readr::read_table("647_Global_Temperature_Data_File.txt")
-dim(temp)
-  
-```
-```{r}
-ggplot(temp, aes(x=year, y = no_smoothing))
+readr::read_table2("647_Global_Temperature_Data_File.txt",
+                   col_names = c("year", "no_smoothing", "lowess"))
+temp
+temp <- temp[c(-1,-2, -3, -4), ]
+temp
+
+temp$no_smoothing <-as.numeric(temp$no_smoothing) 
+temp$lowess <-as.numeric(temp$lowess) 
+  temp
 ```
 
+
+## Question 3:
+
+Plot the trend in global mean temperatures over time.  Describe what you see in the plot and how you interpret the patterns you observe.
+
+```{r}
+ggplot(temp, aes(x=year, y = no_smoothing))+
+    scale_x_discrete(breaks=seq(1880,2030,10))+
+    scale_y_continuous(breaks=seq(-0.5,1,0.2))+
+    geom_point()
+```
+
+```{r}
+ggplot(temp, aes(x=year, y = lowess))+
+    scale_x_discrete(breaks=seq(1880,2030,10))+
+    scale_y_continuous(breaks=seq(-0.5,1,0.2))+
+    geom_point()
+```
+#In the first plot, I see that global mean temperatures (year by year) have increased between 1880 and 2020. However, I am looking at raw yearly averages instead of a rolling average, so I suspect a rolling average would create a different looking graph. The smoothed graph (which is a 5-year rolling average using the "lowess" category) shows a more continuous trend line. I tlooks like there was a particularly coldpriod in 1910, and a warm period in 1941, and then the temperature has been steadily on the rise between ~1965 and 2019. 
